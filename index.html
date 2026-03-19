@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YKS & LGS Asistan — Yapay Zeka Destekli Sınav Hazırlığı</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050509;
+  --surface: #0c0c14;
+  --surface2: #12121e;
+  --border: rgba(255,255,255,0.07);
+  --text: #f0f0f8;
+  --muted: rgba(240,240,248,0.45);
+  --cyan: #00e5ff;
+  --yellow: #ffe135;
+  --pink: #ff2d78;
+  --green: #00ff9d;
+  --orange: #ff6b00;
+  --cyan-glow: rgba(0,229,255,0.15);
+  --yellow-glow: rgba(255,225,53,0.15);
+  --pink-glow: rgba(255,45,120,0.12);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--text);
+  overflow-x: hidden;
+  line-height: 1;
+}
+
+/* ── NOISE OVERLAY ── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.025;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ── GRADIENT MESH BG ── */
+.mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.mesh-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  animation: orb-float 20s ease-in-out infinite alternate;
+}
+.orb1 { width: 700px; height: 700px; background: radial-gradient(circle, rgba(0,229,255,0.18) 0%, transparent 70%); top: -200px; left: -200px; animation-delay: 0s; }
+.orb2 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(255,45,120,0.14) 0%, transparent 70%); bottom: -100px; right: -150px; animation-delay: 8s; }
+.orb3 { width: 400px; height: 400px; background: radial-gradient(circle, rgba(255,225,53,0.12) 0%, transparent 70%); top: 50%; left: 55%; animation-delay: 4s; }
+@keyframes orb-float {
+  0% { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(30px, 40px) scale(1.08); }
+}
+
+/* ── LAYOUT ── */
+.wrap {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 32px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── NAV ── */
+nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 32px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(5,5,9,0.8);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 900;
+  font-size: 1.1rem;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.nav-logo .logo-mark {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, var(--cyan), var(--pink));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+}
+.nav-links {
+  display: flex;
+  gap: 32px;
+}
+.nav-links a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: color 0.2s;
+  letter-spacing: 0.2px;
+}
+.nav-links a:hover { color: var(--text); }
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface2);
+  border: 1px solid rgba(0,229,255,0.25);
+  color: var(--cyan);
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  letter-spacing: 0.2px;
+}
+.nav-btn:hover {
+  background: rgba(0,229,255,0.1);
+  border-color: rgba(0,229,255,0.5);
+  box-shadow: 0 0 20px rgba(0,229,255,0.15);
+}
+
+/* ── HERO ── */
+.hero {
+  padding: 100px 32px 80px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 8px;
+  background: rgba(0,229,255,0.06);
+  border: 1px solid rgba(0,229,255,0.2);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--cyan);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+.eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  background: var(--cyan);
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--cyan);
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.hero h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 900;
+  font-size: clamp(3rem, 7vw, 6rem);
+  line-height: 0.95;
+  letter-spacing: -2px;
+  margin-bottom: 28px;
+  max-width: 800px;
+}
+.h1-line1 { display: block; color: var(--text); }
+.h1-line2 {
+  display: block;
+  background: linear-gradient(90deg, var(--cyan) 0%, var(--pink) 60%, var(--yellow) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: 1.1rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 520px;
+  margin-bottom: 44px;
+  font-weight: 400;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-bottom: 80px;
+}
+.cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--cyan);
+  color: #000;
+  padding: 14px 28px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  letter-spacing: -0.2px;
+  transition: all 0.2s;
+  box-shadow: 0 0 0 0 rgba(0,229,255,0.4);
+}
+.cta-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,229,255,0.3);
+}
+.cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 14px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+.cta-secondary:hover {
+  background: var(--surface);
+  border-color: rgba(255,255,255,0.15);
+}
+
+/* ── COUNTDOWN STRIP ── */
+.countdown-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 100px;
+  position: relative;
+  z-index: 1;
+}
+.count-cell {
+  background: var(--surface);
+  padding: 28px 32px;
+  position: relative;
+  overflow: hidden;
+}
+.count-cell::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.count-cell-lgs::before { background: linear-gradient(90deg, var(--cyan), transparent); }
+.count-cell-yks::before { background: linear-gradient(90deg, var(--yellow), transparent); }
+.count-cell-fire::before { background: linear-gradient(90deg, var(--pink), transparent); }
+
+.count-label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.count-value {
+  font-family: 'Syne', sans-serif;
+  font-weight: 900;
+  font-size: 2.8rem;
+  line-height: 1;
+  letter-spacing: -2px;
+}
+.count-cell-lgs .count-value { color: var(--cyan); }
+.count-cell-yks .count-value { color: var(--yellow); }
+.count-cell-fire .count-value { color: var(--pink); font-size: 2rem; letter-spacing: 0; }
+.count-sublabel {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* ── SECTION HEADER ── */
+.section-header {
+  margin-bottom: 48px;
+}
+.section-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+.section-title {
+  font-family: 'Syne', sans-serif;
+  font-weight: 900;
+  font-size: clamp(2rem, 4vw, 3rem);
+  letter-spacing: -1.5px;
+  line-height: 1;
+}
+
+/* ── APP CARDS ── */
+.apps-section {
+  padding: 0 0 100px;
+  position: relative;
+  z-index: 1;
+}
+.apps-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.app-card {
+  border-radius: 16px;
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s, box-shadow 0.25s;
+  border: 1px solid var(--border);
+}
+.app-card:hover { transform: translateY(-4px); }
+
+.app-card-lgs {
+  background: linear-gradient(145deg, #06141f 0%, #091c2e 100%);
+  border-color: rgba(0,229,255,0.15);
+}
+.app-card-lgs:hover { box-shadow: 0 24px 64px rgba(0,229,255,0.12); }
+
+.app-card-yks {
+  background: linear-gradient(145deg, #1a1000 0%, #271800 100%);
+  border-color: rgba(255,225,53,0.15);
+}
+.app-card-yks:hover { box-shadow: 0 24px 64px rgba(255,225,53,0.1); }
+
+/* Glow corner */
+.app-card-lgs::after {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(0,229,255,0.15) 0%, transparent 70%);
+  pointer-events: none;
+}
+.app-card-yks::after {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(255,225,53,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.app-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+.badge-lgs {
+  background: rgba(0,229,255,0.1);
+  border: 1px solid rgba(0,229,255,0.25);
+  color: var(--cyan);
+}
+.badge-yks {
+  background: rgba(255,225,53,0.1);
+  border: 1px solid rgba(255,225,53,0.25);
+  color: var(--yellow);
+}
+
+.app-card h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 900;
+  font-size: 2rem;
+  letter-spacing: -1px;
+  margin-bottom: 12px;
+  line-height: 1;
+}
+.app-card-lgs h2 { color: var(--cyan); }
+.app-card-yks h2 { color: var(--yellow); }
+
+.app-card p {
+  font-size: 0.9rem;
+  color: rgba(240,240,248,0.55);
+  line-height: 1.65;
+  margin-bottom: 28px;
+  max-width: 320px;
+}
+
+.app-features {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 32px;
+}
+.app-features li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(240,240,248,0.75);
+}
+.feat-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+.check-c { background: rgba(0,229,255,0.15); color: var(--cyan); border: 1px solid rgba(0,229,255,0.3); }
+.check-y { background: rgba(255,225,53,0.12); color: var(--yellow); border: 1px solid rgba(255,225,53,0.25); }
+
+.app-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-decoration: none;
+  letter-spacing: -0.1px;
+  transition: all 0.2s;
+}
+.cta-lgs {
+  background: var(--cyan);
+  color: #000;
+}
+.cta-lgs:hover {
+  box-shadow: 0 4px 24px rgba(0,229,255,0.35);
+  transform: translateY(-1px);
+}
+.cta-yks {
+  background: var(--yellow);
+  color: #000;
+}
+.cta-yks:hover {
+  box-shadow: 0 4px 24px rgba(255,225,53,0.35);
+  transform: translateY(-1px);
+}
+
+/* ── FEATURES GRID ── */
+.features-section {
+  padding: 0 0 100px;
+  position: relative;
+  z-index: 1;
+}
+.feats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+}
+.feat-cell {
+  background: var(--surface);
+  padding: 32px;
+  transition: background 0.2s;
+}
+.feat-cell:hover { background: var(--surface2); }
+.feat-cell-icon {
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+  display: block;
+}
+.feat-cell h3 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.05rem;
+  letter-spacing: -0.5px;
+  margin-bottom: 10px;
+}
+.feat-cell p {
+  font-size: 0.85rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── STATS ── */
+.stats-section {
+  padding: 0 0 100px;
+  position: relative;
+  z-index: 1;
+}
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.stat-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 28px 24px;
+  text-align: center;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.stat-box:hover {
+  border-color: rgba(255,255,255,0.14);
+  transform: translateY(-3px);
+}
+.stat-n {
+  font-family: 'Syne', sans-serif;
+  font-weight: 900;
+  font-size: 2.2rem;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--yellow), var(--orange));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px;
+}
+.stat-l {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+/* ── INSTAGRAM ── */
+.insta-section {
+  padding: 0 0 100px;
+  position: relative;
+  z-index: 1;
+}
+.insta-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 64px;
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 48px;
+  align-items: center;
+}
+.insta-block::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(131,58,180,0.08) 0%, rgba(253,29,29,0.06) 50%, rgba(252,176,69,0.05) 100%);
+  pointer-events: none;
+}
+.insta-block > * { position: relative; z-index: 1; }
+.insta-text .section-tag { color: #fcb045; }
+.insta-text h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 900;
+  font-size: 2.2rem;
+  letter-spacing: -1px;
+  margin-bottom: 14px;
+  line-height: 1.05;
+}
+.insta-text p {
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.7;
+  max-width: 420px;
+  margin-bottom: 28px;
+}
+.insta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+  color: #fff;
+  padding: 13px 26px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(253,29,29,0.25);
+}
+.insta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(253,29,29,0.35);
+}
+.insta-visual {
+  width: 140px;
+  height: 140px;
+  border-radius: 32px;
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  box-shadow: 0 16px 48px rgba(253,29,29,0.25);
+  flex-shrink: 0;
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 28px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+.footer-logo {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.footer-copy {
+  font-size: 0.8rem;
+  color: rgba(240,240,248,0.25);
+}
+.footer-link {
+  font-size: 0.8rem;
+  color: var(--cyan);
+  text-decoration: none;
+}
+.footer-link:hover { text-decoration: underline; }
+
+/* ── SCROLL ANIM ── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-d1 { transition-delay: 0.05s; }
+.reveal-d2 { transition-delay: 0.1s; }
+.reveal-d3 { transition-delay: 0.15s; }
+.reveal-d4 { transition-delay: 0.2s; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  nav { padding: 18px 20px; }
+  .nav-links { display: none; }
+  .hero { padding: 60px 20px 50px; }
+  .wrap { padding: 0 20px; }
+  .apps-grid { grid-template-columns: 1fr; }
+  .feats-grid { grid-template-columns: 1fr; }
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .countdown-strip { grid-template-columns: 1fr; }
+  .insta-block { grid-template-columns: 1fr; padding: 40px 28px; gap: 28px; }
+  .insta-visual { width: 80px; height: 80px; font-size: 2.5rem; border-radius: 20px; }
+  footer { flex-direction: column; gap: 12px; text-align: center; }
+  .hero h1 { letter-spacing: -1.5px; }
+}
+</style>
+</head>
+<body>
+
+<div class="mesh">
+  <div class="mesh-orb orb1"></div>
+  <div class="mesh-orb orb2"></div>
+  <div class="mesh-orb orb3"></div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="logo-mark">🤖</div>
+    YKS & LGS Asistan
+  </div>
+  <div class="nav-links">
+    <a href="#apps">Uygulamalar</a>
+    <a href="#ozellikler">Özellikler</a>
+    <a href="#instagram">Instagram</a>
+  </div>
+  <a href="https://play.google.com/store/apps/details?id=com.kale.lgsasistan" target="_blank" class="nav-btn">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5v-17c0-.83.94-1.3 1.6-.8l14 8.5c.6.37.6 1.23 0 1.6l-14 8.5c-.66.5-1.6.03-1.6-.8z"/></svg>
+    İndir
+  </a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow reveal">
+      <div class="eyebrow-dot"></div>
+      Sınava az kaldı — şimdi başla
+    </div>
+    <h1 class="reveal reveal-d1">
+      <span class="h1-line1">Yapay Zeka ile</span>
+      <span class="h1-line2">Sınava Hazırlan</span>
+    </h1>
+    <p class="hero-sub reveal reveal-d2">YKS ve LGS'ye hazırlanan öğrenciler için geliştirilmiş AI destekli kişisel asistan. Daha akıllı çalış, daha yüksek puan al.</p>
+    <div class="hero-actions reveal reveal-d3">
+      <a href="https://play.google.com/store/apps/details?id=com.kale.lgsasistan" target="_blank" class="cta-primary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5v-17c0-.83.94-1.3 1.6-.8l14 8.5c.6.37.6 1.23 0 1.6l-14 8.5c-.66.5-1.6.03-1.6-.8z"/></svg>
+        LGS Asistan
+      </a>
+      <a href="https://play.google.com/store/apps/details?id=com.yigitbugra.yksasistan" target="_blank" class="cta-secondary">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5v-17c0-.83.94-1.3 1.6-.8l14 8.5c.6.37.6 1.23 0 1.6l-14 8.5c-.66.5-1.6.03-1.6-.8z"/></svg>
+        YKS Asistan
+      </a>
+    </div>
+
+    <!-- COUNTDOWN -->
+    <div class="countdown-strip reveal reveal-d4" id="countdown">
+      <div class="count-cell count-cell-lgs">
+        <div class="count-label">LGS'ye Kalan</div>
+        <div class="count-value" id="lgs-days">—</div>
+        <div class="count-sublabel">gün · 7 Haziran 2026</div>
+      </div>
+      <div class="count-cell count-cell-yks">
+        <div class="count-label">YKS'ye Kalan</div>
+        <div class="count-value" id="yks-days">—</div>
+        <div class="count-sublabel">gün · 20 Haziran 2026</div>
+      </div>
+      <div class="count-cell count-cell-fire">
+        <div class="count-label">Durum</div>
+        <div class="count-value">Şimdi Başla 🔥</div>
+        <div class="count-sublabel">Her gün fark yaratır</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APPS -->
+<section class="apps-section" id="apps">
+  <div class="wrap">
+    <div class="section-header reveal">
+      <div class="section-tag">// 02 Uygulamalar</div>
+      <h2 class="section-title">İki Uygulama, <span style="background:linear-gradient(90deg,var(--cyan),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Sonsuz Başarı</span></h2>
+    </div>
+    <div class="apps-grid">
+      <div class="app-card app-card-lgs reveal reveal-d1">
+        <span class="app-badge badge-lgs">LGS 2026</span>
+        <h2>LGS Asistan</h2>
+        <p>8. sınıf öğrencileri için tasarlandı. Matematik'ten Türkçe'ye, Fen'den İngilizce'ye tüm konularda AI destekli destek.</p>
+        <ul class="app-features">
+          <li><span class="feat-check check-c">✓</span>Konu anlatımı & soru çözümü</li>
+          <li><span class="feat-check check-c">✓</span>Kişisel çalışma planı</li>
+          <li><span class="feat-check check-c">✓</span>Anlık AI asistan desteği</li>
+          <li><span class="feat-check check-c">✓</span>Deneme sınav analizi</li>
+        </ul>
+        <a href="https://play.google.com/store/apps/details?id=com.kale.lgsasistan" target="_blank" class="app-cta cta-lgs">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5v-17c0-.83.94-1.3 1.6-.8l14 8.5c.6.37.6 1.23 0 1.6l-14 8.5c-.66.5-1.6.03-1.6-.8z"/></svg>
+          Google Play'de İndir
+        </a>
+      </div>
+      <div class="app-card app-card-yks reveal reveal-d2">
+        <span class="app-badge badge-yks">YKS 2026</span>
+        <h2>YKS Asistan</h2>
+        <p>TYT ve AYT'ye hazırlanan lise öğrencileri için. Hedef üniversiteye giden en kısa yol yanında.</p>
+        <ul class="app-features">
+          <li><span class="feat-check check-y">✓</span>TYT & AYT konu desteği</li>
+          <li><span class="feat-check check-y">✓</span>Hedef puana göre plan</li>
+          <li><span class="feat-check check-y">✓</span>Zayıf konu tespiti</li>
+          <li><span class="feat-check check-y">✓</span>7/24 AI soru çözümü</li>
+        </ul>
+        <a href="https://play.google.com/store/apps/details?id=com.yigitbugra.yksasistan" target="_blank" class="app-cta cta-yks">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M3 20.5v-17c0-.83.94-1.3 1.6-.8l14 8.5c.6.37.6 1.23 0 1.6l-14 8.5c-.66.5-1.6.03-1.6-.8z"/></svg>
+          Google Play'de İndir
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features-section" id="ozellikler">
+  <div class="wrap">
+    <div class="section-header reveal">
+      <div class="section-tag">// 03 Özellikler</div>
+      <h2 class="section-title">Neden <span style="background:linear-gradient(90deg,var(--yellow),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Biz?</span></h2>
+    </div>
+    <div class="feats-grid reveal reveal-d1">
+      <div class="feat-cell">
+        <span class="feat-cell-icon">🤖</span>
+        <h3>Yapay Zeka Desteği</h3>
+        <p>Sorularını anında yanıtlayan, sana özel açıklama yapan AI asistan. Öğretmenin her an yanında.</p>
+      </div>
+      <div class="feat-cell">
+        <span class="feat-cell-icon">📊</span>
+        <h3>Kişisel Analiz</h3>
+        <p>Zayıf ve güçlü konularını tespit eder, en verimli çalışma planını oluşturur.</p>
+      </div>
+      <div class="feat-cell">
+        <span class="feat-cell-icon">⚡</span>
+        <h3>Anlık Çözüm</h3>
+        <p>Matematik, Fen, Türkçe... Hangi konuda takılırsan takıl, saniyeler içinde açıklama al.</p>
+      </div>
+      <div class="feat-cell">
+        <span class="feat-cell-icon">🎯</span>
+        <h3>Hedef Odaklı</h3>
+        <p>Hayalindeki okula veya üniversiteye göre özelleştirilmiş strateji ve çalışma programı.</p>
+      </div>
+      <div class="feat-cell">
+        <span class="feat-cell-icon">📱</span>
+        <h3>Her Yerde</h3>
+        <p>Yolda, evde, okul çıkışında. Telefonun varsa asistanın da var. 7/24 erişim.</p>
+      </div>
+      <div class="feat-cell">
+        <span class="feat-cell-icon">🆓</span>
+        <h3>Ücretsiz Başla</h3>
+        <p>Hemen indir, ücretsiz dene. Sınava kadar yanında olmak için tasarlandı.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section">
+  <div class="wrap">
+    <div class="stats-row">
+      <div class="stat-box reveal">
+        <div class="stat-n">2</div>
+        <div class="stat-l">Uygulama</div>
+      </div>
+      <div class="stat-box reveal reveal-d1">
+        <div class="stat-n">7/24</div>
+        <div class="stat-l">AI Desteği</div>
+      </div>
+      <div class="stat-box reveal reveal-d2">
+        <div class="stat-n">∞</div>
+        <div class="stat-l">Soru Çözümü</div>
+      </div>
+      <div class="stat-box reveal reveal-d3">
+        <div class="stat-n">🔥</div>
+        <div class="stat-l">Sınava Az Kaldı</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INSTAGRAM -->
+<section class="insta-section" id="instagram">
+  <div class="wrap">
+    <div class="insta-block reveal">
+      <div class="insta-text">
+        <div class="section-tag">// 04 Sosyal Medya</div>
+        <h2>Instagram'da<br>Takip Et!</h2>
+        <p>Günlük motivasyon, sınav tüyoları, konu anlatımları ve çok daha fazlası için sayfamızı takip et. Sınava kadar yanındayız!</p>
+        <a href="https://www.instagram.com/yks.lgs.asistan" target="_blank" class="insta-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+          @yks.lgs.asistan
+        </a>
+      </div>
+      <div class="insta-visual">📸</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">YKS & LGS Asistan</div>
+  <div class="footer-copy">© 2026 · Tüm hakları saklıdır</div>
+  <a href="https://www.instagram.com/yks.lgs.asistan" target="_blank" class="footer-link">Instagram →</a>
+</footer>
+
+<script>
+// COUNTDOWN
+function calcDays(dateStr) {
+  const diff = Math.ceil((new Date(dateStr) - new Date()) / 86400000);
+  return diff > 0 ? diff : 0;
+}
+document.getElementById('lgs-days').textContent = calcDays('2026-06-07');
+document.getElementById('yks-days').textContent = calcDays('2026-06-20');
+
+// SCROLL REVEAL
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+</body>
+</html>
